@@ -82,11 +82,10 @@ class S3BotoStorageMixin(StorageMixin):
         if self.isfile(name):
             return False
 
-        name = self._normalize_name(self._clean_name(name))
-        dirlist = self.listdir(self._encode_name(name))
+        directories, files = self.listdir(name)
 
         # Check whether the iterator is empty
-        for item in dirlist:
+        if any(directories) or any(files):
             return True
         return False
 
@@ -101,9 +100,11 @@ class S3BotoStorageMixin(StorageMixin):
         old_key_name = self._encode_name(self._normalize_name(self._clean_name(old_file_name)))
         new_key_name = self._encode_name(self._normalize_name(self._clean_name(new_file_name)))
 
-        k = self.bucket.copy_key(new_key_name, self.bucket.name, old_key_name, preserve_acl=True)
-
-        if not k:
+        obj = self.bucket.Object(new_key_name)
+        try:
+            obj.copy_from(CopySource={'Bucket': self.bucket.name, 'Key': old_key_name},
+                          **self._get_write_parameters(old_key_name))
+        except:
             raise "Couldn't copy '%s' to '%s'" % (old_file_name, new_file_name)
 
         self.delete(old_file_name)
@@ -112,8 +113,7 @@ class S3BotoStorageMixin(StorageMixin):
         self.save(name + "/.folder", ContentFile(""))
 
     def rmtree(self, name):
-        name = self._normalize_name(self._clean_name(name))
-        directories, files = self.listdir(self._encode_name(name))
+        directories, files = self.listdir(name)
 
         for key in files:
             self.delete('/'.join([name, key]))

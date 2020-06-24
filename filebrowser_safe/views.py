@@ -379,15 +379,15 @@ def delete(request):
             msg = _('The requested File does not exist.')
         messages.add_message(request, messages.ERROR, msg)
         return HttpResponseRedirect(reverse("fb_browse"))
-    abs_path = os.path.join(get_directory(), path)
+    directory = get_directory()
+    abs_path = os.path.join(directory, path)
 
-    normalized = os.path.normpath(os.path.join(get_directory(), path, filename))
+    normalized = os.path.normpath(os.path.join(directory, path, filename))
 
-    if not normalized.startswith(get_directory().strip("/")) or ".." in normalized:
+    if not normalized.startswith(directory.strip("/")) or ".." in normalized:
         msg = _("An error occurred")
         messages.add_message(request, messages.ERROR, msg)
     elif request.GET.get('filetype') != "Folder":
-        relative_server_path = os.path.join(get_directory(), path, filename)
         try:
             # PRE DELETE SIGNAL
             filebrowser_pre_delete.send(sender=request, path=path, filename=filename)
@@ -446,15 +446,15 @@ def rename(request):
             msg = _('The requested File does not exist.')
         messages.add_message(request, messages.ERROR, msg)
         return HttpResponseRedirect(reverse("fb_browse"))
-    abs_path = os.path.join(MEDIA_ROOT, get_directory(), path)
+    abs_path = os.path.join(get_directory(), path)
     file_extension = os.path.splitext(filename)[1].lower()
 
     if request.method == 'POST':
         form = RenameForm(abs_path, file_extension, request.POST)
         if form.is_valid():
-            relative_server_path = os.path.join(get_directory(), path, filename)
+            relative_server_path = os.path.join(abs_path, filename)
             new_filename = form.cleaned_data['name'] + file_extension
-            new_relative_server_path = os.path.join(get_directory(), path, new_filename)
+            new_relative_server_path = os.path.join(abs_path, new_filename)
             try:
                 # PRE RENAME SIGNAL
                 filebrowser_pre_rename.send(sender=request, path=path, filename=filename, new_filename=new_filename)
