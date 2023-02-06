@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from django.conf import settings
 from django.core.files.storage import default_storage
 # coding: utf-8
@@ -12,8 +10,6 @@ from django import forms
 from django.utils.translation import gettext as _
 
 from filebrowser_safe.settings import FOLDER_REGEX
-
-# coding: utf-8
 
 ALLOWED_CHARS_MSG = (
     "Only letters, numbers, underscores, spaces and hyphens are allowed."
