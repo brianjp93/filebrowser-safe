@@ -111,7 +111,7 @@ class S3BotoStorageMixin(StorageMixin):
         self.delete(old_file_name)
 
     def makedirs(self, name):
-        self.save(name + "/.folder", ContentFile(""))
+        self.save(name + "/.folder", ContentFile(b""))
 
     def rmtree(self, name):
         name = self._normalize_name(self._clean_name(name))
