@@ -114,8 +114,7 @@ class S3BotoStorageMixin(StorageMixin):
         self.save(name + "/.folder", ContentFile(b""))
 
     def rmtree(self, name):
-        name = self._normalize_name(self._clean_name(name))
-        directories, files = self.listdir(self._encode_name(name))
+        directories, files = self.listdir(name)
 
         for key in files:
             self.delete("/".join([name, key]))
